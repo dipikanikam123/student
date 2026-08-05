@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import API from "../../api/api";
+import axios from "axios";
 
 const AddStudent = () => {
   const navigate = useNavigate();
@@ -32,27 +32,54 @@ const AddStudent = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    setLoading(true);
+  try {
+    const response = await axios.post(
+      "http://localhost:8080/api/students",
+      student
+    );
 
-    try {
-      await API.post("/students", student);
+    console.log(response.data);
 
-      alert("Student Added Successfully");
+    alert("Student Added Successfully");
 
-      navigate("/students");
-    } catch (error) {
-      console.error(error);
+    // Go to Student List page
+    navigate("/studentList");
 
-      alert(
-        error.response?.data?.message || "Unable to save student."
-      );
-    } finally {
-      setLoading(false);
+    // OR if you want to clear the form instead of navigating:
+    /*
+    setStudent({
+      studentCode: "",
+      firstName: "",
+      lastName: "",
+      gender: "",
+      dob: "",
+      email: "",
+      phone: "",
+      address: "",
+      course: "",
+      department: "",
+      semester: "",
+      admissionDate: "",
+      active: true,
+    });
+    */
+
+  } catch (error) {
+    console.error(error);
+
+    if (error.response) {
+      alert(error.response.data.message || "Unable to save student.");
+    } else {
+      alert("Server is not running or network error.");
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const inputClass =
     "w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";

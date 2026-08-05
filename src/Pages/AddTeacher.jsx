@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import API from "../../api/api";
+import axios from "axios";
 
 const AddTeacher = () => {
   const navigate = useNavigate();
@@ -34,20 +34,23 @@ const AddTeacher = () => {
 
   const saveTeacher = async (e) => {
     e.preventDefault();
-
     setLoading(true);
 
     try {
-      await API.post("/teachers", teacher);
+      await axios.post(
+        "http://localhost:8080/api/teachers",
+        teacher
+      );
 
       alert("Teacher Added Successfully");
 
-      navigate("/teachers");
+      navigate("/teacherlist");
     } catch (error) {
-      console.error(error);
+      console.error("Save Teacher Error:", error);
 
       alert(
-        error.response?.data?.message || "Unable to Save Teacher"
+        error.response?.data?.message ||
+        "Unable to Save Teacher"
       );
     } finally {
       setLoading(false);
@@ -59,7 +62,6 @@ const AddTeacher = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
-
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg">
 
         <div className="bg-green-600 text-white rounded-t-xl px-6 py-4">
@@ -71,9 +73,7 @@ const AddTeacher = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             <div>
-              <label className="block mb-2 font-medium">
-                Teacher Code
-              </label>
+              <label className="block mb-2 font-medium">Teacher Code</label>
               <input
                 type="text"
                 name="teacherCode"
@@ -85,9 +85,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                First Name
-              </label>
+              <label className="block mb-2 font-medium">First Name</label>
               <input
                 type="text"
                 name="firstName"
@@ -99,9 +97,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                Last Name
-              </label>
+              <label className="block mb-2 font-medium">Last Name</label>
               <input
                 type="text"
                 name="lastName"
@@ -113,10 +109,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                Gender
-              </label>
-
+              <label className="block mb-2 font-medium">Gender</label>
               <select
                 name="gender"
                 value={teacher.gender}
@@ -130,10 +123,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                Email
-              </label>
-
+              <label className="block mb-2 font-medium">Email</label>
               <input
                 type="email"
                 name="email"
@@ -144,10 +134,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                Phone
-              </label>
-
+              <label className="block mb-2 font-medium">Phone</label>
               <input
                 type="text"
                 name="phone"
@@ -158,10 +145,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                Qualification
-              </label>
-
+              <label className="block mb-2 font-medium">Qualification</label>
               <input
                 type="text"
                 name="qualification"
@@ -172,10 +156,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                Specialization
-              </label>
-
+              <label className="block mb-2 font-medium">Specialization</label>
               <input
                 type="text"
                 name="specialization"
@@ -186,10 +167,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                Experience (Years)
-              </label>
-
+              <label className="block mb-2 font-medium">Experience (Years)</label>
               <input
                 type="number"
                 name="experience"
@@ -200,10 +178,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                Salary
-              </label>
-
+              <label className="block mb-2 font-medium">Salary</label>
               <input
                 type="number"
                 name="salary"
@@ -214,10 +189,7 @@ const AddTeacher = () => {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">
-                Joining Date
-              </label>
-
+              <label className="block mb-2 font-medium">Joining Date</label>
               <input
                 type="date"
                 name="joiningDate"
@@ -228,33 +200,28 @@ const AddTeacher = () => {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block mb-2 font-medium">
-                Address
-              </label>
-
+              <label className="block mb-2 font-medium">Address</label>
               <textarea
                 rows="4"
                 name="address"
                 value={teacher.address}
                 onChange={handleChange}
                 className={inputClass}
-              ></textarea>
+              />
             </div>
 
             <div className="md:col-span-2 flex items-center">
-
               <input
                 type="checkbox"
                 name="active"
                 checked={teacher.active}
                 onChange={handleChange}
-                className="h-5 w-5 text-green-600 rounded"
+                className="h-5 w-5"
               />
 
               <label className="ml-3 font-medium">
                 Active Teacher
               </label>
-
             </div>
 
           </div>
@@ -264,7 +231,7 @@ const AddTeacher = () => {
             <button
               type="submit"
               disabled={loading}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition"
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg"
             >
               {loading ? "Saving..." : "Save Teacher"}
             </button>
@@ -272,7 +239,7 @@ const AddTeacher = () => {
             <button
               type="button"
               onClick={() => navigate("/teachers")}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold transition"
+              className="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-lg"
             >
               Cancel
             </button>
@@ -282,7 +249,6 @@ const AddTeacher = () => {
         </form>
 
       </div>
-
     </div>
   );
 };

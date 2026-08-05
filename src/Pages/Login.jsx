@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-// import API from "../api/api";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 
 const Login = () => {
+
   const navigate = useNavigate();
 
   const [loginData, setLoginData] = useState({
@@ -13,12 +14,14 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+
   const handleChange = (e) => {
     setLoginData({
       ...loginData,
       [e.target.name]: e.target.value,
     });
   };
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,98 +30,182 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await API.post("/login", loginData);
+     
+      const res = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        loginData
+      );
+      console.log("Login Response:", res.data);
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("username", res.data.username);
-      localStorage.setItem("role", res.data.role);
 
-      if (res.data.role === "ADMIN") {
+      // Save JWT Token
+      localStorage.setItem(
+        "token",
+        res.data.token
+      );
+
+
+      // Save User Details
+      localStorage.setItem(
+        "username",
+        res.data.username
+      );
+
+      localStorage.setItem(
+        "role",
+        res.data.role
+      );
+
+
+      alert("Login Successful");
+
+
+      // Role Based Navigation
+
+      if(res.data.role === "Admin"){
+
         navigate("/dashboard");
-      } else if (res.data.role === "TEACHER") {
-        navigate("/dashboard");
-      } else if (res.data.role === "STUDENT") {
-        navigate("/dashboard");
+
       }
+      // else if(res.data.role === "TEACHER"){
+
+      //   navigate("/teacher/dashboard");
+
+      // }
+      else if(res.data.role === "STUDENT"){
+
+        navigate("/student/sidebar");
+
+      }
+      else{
+
+        navigate("/sidebar");
+
+      }
+
+
     } catch (err) {
-      setError("Invalid Username or Password");
+
+      console.error(err);
+
+
+      if(err.response){
+
+        setError(
+          err.response.data.message ||
+          "Invalid Username or Password"
+        );
+
+      }
+      else{
+
+        setError("Server Error");
+
+      }
+
     }
 
+
     setLoading(false);
+
   };
 
+
+
   return (
-    <div className="min-h-screen  flex items-center justify-center px-5">
 
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8">
+    <div className="min-h-screen flex justify-center items-center bg-gray-100">
 
-        <div className="text-center">
 
-          <div className="text-6xl">🎓</div>
+      <div className="bg-white p-8 rounded-xl shadow-lg w-[400px]">
 
-          <h1 className="text-3xl font-bold mt-3 text-gray-800">
-            Student Management
-          </h1>
 
-          <p className="text-gray-500 mt-2">
-            Login to Continue
-          </p>
+        <h1 className="text-3xl font-bold text-center mb-6">
+          Student Management
+        </h1>
 
-        </div>
 
-        <form onSubmit={handleLogin} className="mt-8 space-y-5">
 
-          <div>
-            <label className="font-semibold block mb-2">
-              Username
-            </label>
+        <form onSubmit={handleLogin}>
 
-            <input
-              type="text"
-              name="username"
-              value={loginData.username}
-              onChange={handleChange}
-              placeholder="Enter Username"
-              className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            />
-          </div>
 
-          <div>
-            <label className="font-semibold block mb-2">
-              Password
-            </label>
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={loginData.username}
+            onChange={handleChange}
+            className="border w-full p-3 rounded mb-4"
+            required
+          />
 
-            <input
-              type="password"
-              name="password"
-              value={loginData.password}
-              onChange={handleChange}
-              placeholder="Enter Password"
-              className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            />
-          </div>
+
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={loginData.password}
+            onChange={handleChange}
+            className="border w-full p-3 rounded mb-4"
+            required
+          />
+
+
 
           {error && (
-            <div className="text-red-600 text-center font-semibold">
+
+            <p className="text-red-600 mb-3">
               {error}
-            </div>
+            </p>
+
           )}
 
+
+
           <button
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition"
+            className="bg-blue-600 text-white w-full p-3 rounded"
             disabled={loading}
           >
-            {loading ? "Logging..." : "Login"}
+
+            {
+              loading 
+              ? "Logging..." 
+              : "Login"
+            }
+
           </button>
+
 
         </form>
 
+
+
+        <p className="text-center mt-5">
+
+          Don't have an account?{" "}
+
+
+          <Link
+            to="/register"
+            className="text-blue-600 font-bold"
+          >
+            Register
+          </Link>
+
+
+        </p>
+
+
+
       </div>
 
+
     </div>
+
   );
+
 };
+
 
 export default Login;

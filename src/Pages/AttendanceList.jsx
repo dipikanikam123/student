@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import API from "../../api/api";
+import axios from "axios";
+
+const ATTENDANCE_API = "http://localhost:8080/api/attendance";
 
 const AttendanceList = () => {
   const [attendanceList, setAttendanceList] = useState([]);
@@ -10,40 +12,61 @@ const AttendanceList = () => {
     loadAttendance();
   }, []);
 
+  // Load Attendance
   const loadAttendance = async () => {
     try {
-      const response = await API.get("/attendance");
-      setAttendanceList(response.data);
+      const response = await axios.get(ATTENDANCE_API);
+
+      if (Array.isArray(response.data)) {
+        setAttendanceList(response.data);
+      } else {
+        setAttendanceList([]);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Load Attendance Error:", error);
       alert("Unable to load attendance.");
     }
   };
 
+  // Delete Attendance
   const deleteAttendance = async (id) => {
-    if (!window.confirm("Delete this attendance record?")) return;
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this attendance record?"
+    );
+
+    if (!confirmDelete) return;
 
     try {
-      await API.delete(`/attendance/${id}`);
+      await axios.delete(`${ATTENDANCE_API}/${id}`);
+
       alert("Attendance Deleted Successfully");
-      loadAttendance();
+
+      setAttendanceList((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
     } catch (error) {
-      console.error(error);
+      console.error("Delete Error:", error);
       alert("Unable to delete attendance.");
     }
   };
 
-  const filteredAttendance = attendanceList.filter(
-    (attendance) =>
-      attendance.studentName
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
-      attendance.date?.includes(search)
-  );
+  // Search Filter
+  const filteredAttendance = attendanceList.filter((attendance) => {
+    const studentName =
+      attendance.studentName ||
+      attendance.student?.firstName ||
+      "";
+
+    const date = attendance.date || "";
+
+    return (
+      studentName.toLowerCase().includes(search.toLowerCase()) ||
+      date.toString().includes(search)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-
       <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-lg">
 
         {/* Header */}
@@ -54,7 +77,7 @@ const AttendanceList = () => {
           </h2>
 
           <Link
-            to="/attendance/add"
+            to="/markattendance"
             className="mt-3 md:mt-0 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition"
           >
             + Mark Attendance
@@ -64,21 +87,19 @@ const AttendanceList = () => {
 
         {/* Search */}
         <div className="p-6">
-
           <input
             type="text"
-            placeholder="Search by Student Name or Date"
+            placeholder="Search Student or Date"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full md:w-96 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
           />
-
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto">
 
-          <table className="min-w-full">
+          <table className="min-w-full border-collapse">
 
             <thead className="bg-gray-800 text-white">
 
@@ -110,10 +131,15 @@ const AttendanceList = () => {
                     key={attendance.id}
                     className="border-b hover:bg-gray-50"
                   >
-                    <td className="px-4 py-3">{attendance.id}</td>
+                    <td className="px-4 py-3">
+                      {attendance.id}
+                    </td>
 
                     <td className="px-4 py-3">
-                      {attendance.studentName}
+                      {attendance.studentName ||
+                        `${attendance.student?.firstName || ""} ${
+                          attendance.student?.lastName || ""
+                        }`}
                     </td>
 
                     <td className="px-4 py-3">
@@ -133,21 +159,18 @@ const AttendanceList = () => {
                     </td>
 
                     <td className="px-4 py-3">
-                      {attendance.remarks}
+                      {attendance.remarks || "-"}
                     </td>
 
                     <td className="px-4 py-3 text-center">
-
                       <button
-                        onClick={() =>
-                          deleteAttendance(attendance.id)
-                        }
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
+                        onClick={() => deleteAttendance(attendance.id)}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
                       >
                         Delete
                       </button>
-
                     </td>
+
                   </tr>
                 ))
               )}
@@ -159,7 +182,6 @@ const AttendanceList = () => {
         </div>
 
       </div>
-
     </div>
   );
 };

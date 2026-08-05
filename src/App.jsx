@@ -1,7 +1,7 @@
 import {BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./Pages/Login";
  import Navbar from "./Component/Navbar";
-
+import Register from "./Pages/Register";
 // import './App.css'
 import PrivateRoute from "./Component/PrivateRoute";
 import Sidebar from "./Component/Sidebar";
@@ -31,6 +31,7 @@ function App() {
       {/* <Route path="/" element={<Navigate to ="/Login"/>}/> */}
       <Route path="/" element={<Home />}/>
       <Route path="/login" element={<Login/>}/>
+      <Route path="/register" element={<Register/>}/>
        {/* <Route path="/Navbar" element={<Navbar />}/>  */}
       <Route path="/PrivateRoute" element={<PrivateRoute />} />
       <Route path="/sidebar" element={<Sidebar/>}/>
@@ -39,8 +40,8 @@ function App() {
       <Route path="/addteacher" element={<AddTeacher/>}/>
       <Route path="/attendance" element={<AttendanceList/>}/>
       <Route path="/dashboard" element={<Dashboard />}/>
-      <Route path="/editstudent" element={<EditStudent />} />
-      <Route path="/editteacher" element={<EditTeacher />}/>
+      {/* <Route path="/editstudent" element={<EditStudent />} /> */}
+      {/* <Route path="/editteacher" element={<EditTeacher />}/> */}
       <Route path="/feelist" element={<FeeList />}/>
       <Route path="/markattendance" element={<MarkAttendance />}/>
       <Route path="/studentList" element={<StudentList />}/>
